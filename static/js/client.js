@@ -38,7 +38,7 @@ function generateUsername() {
     let username;
 
     do {
-        username = prompt("What's your name?", "Test");
+        username = prompt("What's your name?");
     } while (username == "");
 
     return username;
