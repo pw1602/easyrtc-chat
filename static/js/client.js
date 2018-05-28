@@ -26,21 +26,19 @@ let selfEasyrtcid = "";
 let roomOccupants = [];
 let username = generateUsername();
 easyrtc.setUsername(username);
-const roomName = "default";
+const roomName = "general";
 
 const inputForm = document.querySelector("#messageForm");
 const inputMessage = document.getElementById("sendMessageText");
 inputForm.addEventListener("submit", () => { //Wysylanie wiadomosci
-    for (let i = 0; i < roomOccupants.length; i++) {
-        sendStuffWS(roomOccupants[i]);
-    }
+    sendStuffWS({targetRoom: roomName});
 });
 
 function generateUsername() {
     let username;
 
     do {
-        username = prompt("What's your name?");
+        username = prompt("What's your name?", "Test");
     } while (username == "");
 
     return username;
@@ -49,16 +47,12 @@ function generateUsername() {
 function connect() {
     easyrtc.setPeerListener(insertMessageToDOM);
     easyrtc.setRoomOccupantListener(getOccupants);
-    easyrtc.connect(roomName, loginSuccess, loginFailure);
+    easyrtc.joinRoom(roomName, null, null, null);
+    easyrtc.connect("easyrtcChat", loginSuccess, loginFailure);
 }
 
 function getOccupants(roomName, occupants, isPrimary) {
     roomOccupants = easyrtc.getRoomOccupantsAsArray(roomName);
-    for (let i = 0; i < roomOccupants.length; i++) {
-        if (roomOccupants[i] != selfEasyrtcid) {
-            easyrtc.sendDataWS(roomOccupants[i], "info", username + " joined to room.");
-        }
-    }
 }
  
 function sendStuffWS(otherEasyrtcid) {
@@ -67,10 +61,7 @@ function sendStuffWS(otherEasyrtcid) {
         return;
     }
 
-    if (otherEasyrtcid != selfEasyrtcid) {
-        easyrtc.sendDataWS(otherEasyrtcid, "theirs", text.value);
-    }
-
+    easyrtc.sendDataWS(otherEasyrtcid, "theirs", text.value);
     insertMessageToDOM(username, 'mine', text.value);
     inputMessage.value = "";
 }
@@ -78,6 +69,7 @@ function sendStuffWS(otherEasyrtcid) {
 function loginSuccess(easyrtcid) {
     selfEasyrtcid = easyrtcid;
     insertMessageToDOM(null, "info", "You joined to room.");
+    easyrtc.sendDataWS({targetRoom: roomName}, "info", username + " joined to room.");
 }
  
 function loginFailure(errorCode, message) {
