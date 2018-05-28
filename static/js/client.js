@@ -26,20 +26,11 @@ let selfEasyrtcid = "";
 let roomOccupants = [];
 let username = generateUsername();
 easyrtc.setUsername(username);
+const roomName = "default";
 
 const inputForm = document.querySelector("#messageForm");
 const inputMessage = document.getElementById("sendMessageText");
 inputForm.addEventListener("submit", () => { //Wysylanie wiadomosci
-    if (roomOccupants.length == 1) {
-        if (inputMessage.value == "") {
-            return;
-        }
-
-        insertMessageToDOM(username, 'mine', inputMessage.value);
-        inputMessage.value = "";
-        return;
-    }
-
     for (let i = 0; i < roomOccupants.length; i++) {
         sendStuffWS(roomOccupants[i]);
     }
@@ -50,57 +41,54 @@ function generateUsername() {
 
     do {
         username = prompt("What's your name?");
-    } while (username == "" || checkOccupantsName(username));
+    } while (username == "");
 
     return username;
 }
  
 function connect() {
-  easyrtc.setPeerListener(insertMessageToDOM);
-  easyrtc.setRoomOccupantListener(getOccupants);
-  easyrtc.connect("default", loginSuccess, loginFailure);
-}
-
-function checkOccupantsName(name) {
-    for (let i = 0; i < roomOccupants.length; i++) {
-        if (easyrtc.idToName(roomOccupants[i]) == name) {
-            return true;
-        }
-    }
-
-    return false;
+    easyrtc.setPeerListener(insertMessageToDOM);
+    easyrtc.setRoomOccupantListener(getOccupants);
+    easyrtc.connect(roomName, loginSuccess, loginFailure);
 }
 
 function getOccupants(roomName, occupants, isPrimary) {
-    roomOccupants = easyrtc.getRoomOccupantsAsArray('default');
+    roomOccupants = easyrtc.getRoomOccupantsAsArray(roomName);
+    for (let i = 0; i < roomOccupants.length; i++) {
+        if (roomOccupants[i] != selfEasyrtcid) {
+            easyrtc.sendDataWS(roomOccupants[i], "info", username + " joined to room.");
+        }
+    }
 }
  
 function sendStuffWS(otherEasyrtcid) {
-  let text = document.querySelector('input[type="text"]');
-  if(text.value.replace(/\s/g, "").length === 0) { // Don"t send just whitespace
-    return;
-  }
- 
-  easyrtc.sendDataWS(otherEasyrtcid, "theirs", text.value);
-  insertMessageToDOM(username, 'mine', text.value);
-  inputMessage.value = "";
+    let text = document.querySelector('input[type="text"]');
+    if(text.value.replace(/\s/g, "").length === 0) { // Don"t send just whitespace
+        return;
+    }
+
+    if (otherEasyrtcid != selfEasyrtcid) {
+        easyrtc.sendDataWS(otherEasyrtcid, "theirs", text.value);
+    }
+
+    insertMessageToDOM(username, 'mine', text.value);
+    inputMessage.value = "";
 }
  
 function loginSuccess(easyrtcid) {
-  selfEasyrtcid = easyrtcid;
-  console.log("My ID: " + selfEasyrtcid);
-  insertMessageToDOM(null, "info", "You have joined to room.");
+    selfEasyrtcid = easyrtcid;
+    insertMessageToDOM(null, "info", "You joined to room.");
 }
  
 function loginFailure(errorCode, message) {
-  easyrtc.showError(errorCode, message);
+    easyrtc.showError(errorCode, message);
 }
 
 function insertMessageToDOM(name, type, content) {
     const template = document.querySelector('template[data-template="message"]');
     const nameEl = template.content.querySelector('.message__name');
-  
-    if (name) {
+
+    if (name && type != "info") {
       nameEl.innerText = easyrtc.idToName(name);
     }
   
@@ -109,9 +97,9 @@ function insertMessageToDOM(name, type, content) {
     const messageEl = clone.querySelector('.message');
   
     if (type == "mine") {
-      messageEl.classList.add('message--mine');
+        messageEl.classList.add('message--mine');
     } else if (type == "theirs") {
-      messageEl.classList.add('message--theirs');
+        messageEl.classList.add('message--theirs');
     } else {
         messageEl.classList.add('message--info');
     }

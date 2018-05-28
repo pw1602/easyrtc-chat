@@ -58,7 +58,7 @@ body {
 .message--info {
     align-items: center;
     color: grey;
-    font-size: 12px;
+    font-size: 10px;
 }
 
 .message__name {
