@@ -25,7 +25,7 @@
 let selfEasyrtcid = "";
 let username = generateUsername();
 easyrtc.setUsername(username);
-const roomName = "general";
+const roomName = "default";
 
 const inputForm = document.querySelector("#messageForm");
 const inputMessage = document.getElementById("sendMessageText");

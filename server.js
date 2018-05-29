@@ -18,7 +18,7 @@ var webServer = http.createServer(app);
 // Start Socket.io so it attaches itself to Express server
 var socketServer = socketIo.listen(webServer, {"log level":1});
 
-easyrtc.setOption("logLevel", "debug");
+//easyrtc.setOption("logLevel", "debug");
 
 // Overriding the default easyrtcAuth listener, only so we can directly access its callback
 easyrtc.events.on("easyrtcAuth", function(socket, easyrtcid, msg, socketCallback, callback) {
@@ -34,12 +34,6 @@ easyrtc.events.on("easyrtcAuth", function(socket, easyrtcid, msg, socketCallback
 
         callback(err, connectionObj);
     });
-});
-
-// To test, lets print the credential to the console for every room join!
-easyrtc.events.on("roomJoin", function(connectionObj, roomName, roomParameter, callback) {
-    console.log("["+connectionObj.getEasyrtcid()+"] Credential retrieved!", connectionObj.getFieldValueSync("credential"));
-    easyrtc.events.defaultListeners.roomJoin(connectionObj, roomName, roomParameter, callback);
 });
 
 // Start EasyRTC server
