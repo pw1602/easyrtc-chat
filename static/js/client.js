@@ -23,7 +23,6 @@
 //POSSIBILITY OF SUCH DAMAGE.
 
 let selfEasyrtcid = "";
-let roomOccupants = [];
 let username = generateUsername();
 easyrtc.setUsername(username);
 const roomName = "general";
@@ -46,13 +45,8 @@ function generateUsername() {
  
 function connect() {
     easyrtc.setPeerListener(insertMessageToDOM);
-    easyrtc.setRoomOccupantListener(getOccupants);
     easyrtc.joinRoom(roomName, null, null, null);
     easyrtc.connect("easyrtcChat", loginSuccess, loginFailure);
-}
-
-function getOccupants(roomName, occupants, isPrimary) {
-    roomOccupants = easyrtc.getRoomOccupantsAsArray(roomName);
 }
  
 function sendStuffWS(otherEasyrtcid) {
