@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Easyrtc Chat</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" type="text/css" href="/easyrtc/easyrtc.css" />
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="/easyrtc/easyrtc.js"></script>
+    </head>
+    <body onload="connect()">
+      <div class="content">
+        <div class="messages"></div>
+    
+        <form id="messageForm" class="footer" onsubmit="return false;">
+          <input id="sendMessageText" type="text" placeholder="Your message.." maxlength="250">
+          <button type="submit">Send</button>
+        </form>
+      </div>
+      <div id="otherClients"></div>
+    
+      <template data-template="message">
+        <div class="message">
+          <div class="message__name"></div>
+          <div class="message__bubble"></div>
+        </div>
+      </template>
+    </body>
+
+    <script type="text/javascript" src="js/client.js"></script>
+</html>
